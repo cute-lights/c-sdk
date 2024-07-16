@@ -1,48 +1,48 @@
 on:
-    push:
-        tags:
-            - "v*" # Push events to every tag not containing /
-    workflow_dispatch:
+  push:
+    tags:
+      - "v*" # Push events to every tag not containing /
+  workflow_dispatch:
 
 name: Publish
 
 jobs:
-    publish:
-        name: Publish
-        runs-on: ubuntu-latest
-        permissions:
-            contents: write
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Bump version
+        uses: cute-lights/bump-version@main
+        with:
+          files: "Cargo.toml"
+      - name: Package
+        run: |
+          cargo build --release
+          mkdir -p dist
+          mkdir -p dist/include
+          mkdir -p dist/lib64
+          cp target/release/libcutelight.so dist/lib64
+          cp target/include/cutelight.h dist/include
+          cp README.md dist
+          cp LICENSE dist
+          tar -czvf cutelight.tar.gz dist
+
+      - name: Publish to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+          files: cutelight.tar.gz
         env:
-            CARGO_TERM_COLOR: always
-        steps:
-            - name: Checkout sources
-              uses: actions/checkout@v2
-
-            - name: Install stable toolchain
-              uses: actions-rs/toolchain@v1
-              with:
-                  profile: minimal
-                  toolchain: stable
-                  override: true
-
-            - name: Bump version
-              uses: tj-actions/cargo-bump@v3
-
-            - name: Package
-              run: |
-                cargo build --release
-                mkdir -p dist
-                mkdir -p dist/include
-                mkdir -p dist/lib64
-                cp target/release/libcutelight.so dist/lib64
-                cp target/include/cutelight.h dist/include
-                cp README.md dist
-                cp LICENSE dist
-                tar -czvf cutelight.tar.gz dist
-            
-            - name: Publish to GitHub
-              uses: softprops/action-gh-release@v1
-              with:
-                  files: cutelight.tar.gz
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
