@@ -227,7 +227,7 @@ dependencies = [
 [[package]]
 name = "cute_lights"
 version = "0.1.2"
-source = "git+https://github.com/cute-lights/rust-sdk?branch=main#c1e4aaa79fb8b3a8b5e3134e56e934aa153ac7da"
+source = "git+https://github.com/cute-lights/rust-sdk?tag=v0.2.2#5f74dbc5766657410c36664d5278c3ac2dec9470"
 dependencies = [
  "anyhow",
  "async-trait",
