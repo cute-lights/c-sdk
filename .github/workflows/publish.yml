@@ -29,11 +29,15 @@ jobs:
         with:
           files: "Cargo.toml"
       - name: Package
-        run: cargo build --release
+        run: |
+          cargo build --release
+          mkdir -p dist
+          cp target/release/libcutelight.so dist/
+          cp target/include/cutelight.h dist/
 
       - name: Publish to GitHub
         uses: softprops/action-gh-release@v1
         with:
-          files: target/release/libcutelight.so target/include/cutelight.h
+          files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
